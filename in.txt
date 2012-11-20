@@ -1,0 +1,5 @@
+car=bus-bike
+bus=scooter+truck
+bike=cycle+activa
+activa=access
+gs150R=access+topgear
