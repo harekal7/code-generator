@@ -1,76 +1,275 @@
 import sys
 
-def init_table(des, regs, var):
-        update = []
-	update.append([])
-	update.append([])
-        for i in regs:
-                update[0].append(None)
+def is_nnu_present(reg , inst_no , t):
+	
+	present = False
+	
+	for i in reg:
+		if(t[inst_no][reg.index(i)][1] == None):
+			present = True
+			break
 
-        for i in var:
-                if ( var[i] =='act' ):
-                        update[1].append(i)
-                else:
-                        update[1].append(None)
+	return present
 
-        des.append(update)
+def nnu_register(reg ,inst_no, t):
+	
+	index = -1
+	for i in reg:
+		if(t[inst_no][i][1] == None):
+			index = reg.index(i)
+			break
+	return index
 
-def display_table(des):
-        #i = 0
-	print des[0],des[1]
-	i = 2
-        while (i<len(des)):
-                print des[i],
-                i = i+1
-		print
+def is_address_descriptor(table , reg):
+		
+	present = False		
+	for i in reg:
+		
+		if(table[i][0] != None and table[i][1] != None):
+			table[i][1] = None
+			present = True
+			break
+	return present
 
-def update(des):
-	update = []
-	update.append(['a', 'b', None])
-	update.append(['a', 'c', 'b', 'd,R1', None, None, 'R0'])
-	#des.append(update[0])
-	des.append(update)
 
-def get():
+def address_descriptor(table , reg):
+	
+	for i in reg:
+	
+		free = -1	
+		if(table[i][0] != None and table[i][1] != None):
+			table[i][1] = None
+			free = reg.index(i)
+			break
+	return free 
+
+
+
+def get_operation(quad):
+	
+	if(quad[2] == '+'):
+		return 'ADD'
+	elif(quad[2] == '-'):
+		return 'SUB'
+	elif(quad[3] == '*'):
+		return 'MUL'
+
+
+
+
+
+def next_use_register(reg , inst_no , t):
+	
+	a = []
+	for i in reg:
+		a.append(t[inst_no][i][1])
+
+	
+	b = a
+	
+	b.sort()
+	index = a.index(b[-1])
+	return index
+	
+			
+def getReg_and_update1(I , inst_no , reg , table , t):
+
+	print 
+	print 
+	print I
+	print 
+	print 	
+		
+	if I[1] in reg:
+		first_op = reg.index(I[1])
+		
+	elif None in reg:
+	
+		free = reg.index(None)
+		reg[free] = I[1]
+
+	
+		table[I[1]][1] = free
+		print '*'*40	
+		print 'LOAD R' , free , ' , ' ,I[1]
+		first_op = free
+	else:
+		
+		if(is_address_descriptor(table , reg)):
+		
+			
+			free = address_descriptor(table , reg)
+			if(free != -1):
+				reg[free] = I[1]
+				table[I[1]][1] = free
+				print 'LOAD R',free , ' , ' , I[1]
+				first_op = free
+			
+		
+		elif(I[0] in reg):
+			free = reg.index(I[0])
+			reg[free] = I[1]
+			
+			table[I[0]][1] = None
+			table[I[1]][1] = free
+		
+			print 'LOAD R' , free , ' , ' , I[1]
+			
+			first_op = free
+		
+
+		elif(is_nnu_present(reg , inst_no ,  t)):
+			free = nnu_register(reg ,inst_no, t)
+			
+			reg[free] = I[1]
+			table[I[1]][1] = free
+		
+			print ('LOAD R' , free , ' , ' , I[1])
+			first_op = free
+	
+		else:
+			free = next_use_register(reg , inst_no , t)
+                        print 'STORE ' , reg[free] , ' R ' , free
+                        table[reg[free]][1] = None
+                        reg[free] = I[1]
+                        table[I[1]][1] = free
+                        first_op = free
+
+		
+	if I[3] in reg:
+		
+		second_op = reg.index(I[3])
+	elif None in reg:
+	
+		free = reg.index(None)
+		reg[free] = I[1]
+
+	
+		table[I[3]][1] = free
+		print '*'*40	
+		print 'LOAD R' , free , ' , ' ,I[3]
+		
+		second_op = free
+	else:
+		
+		if(is_address_descriptor(table , reg)):
+
+                        free = address_descriptor(table , reg)
+			if(free != -1):
+                        	reg[free] = I[3]
+                        	table[I[3]][1] = free
+                        	print 'LOAD R',free , ' , ' , I[3]
+				second_op = free
+		
+		elif(I[0] in reg):
+			free = reg.index(I[0])
+			reg[free] = I[1]
+			
+			table[I[0]][1] = None
+			table[I[1]][1] = free
+		
+			print 'LOAD R' , free , ' , ' , I[3]
+
+			second_op = free
+		
+
+		elif(is_nnu_present(reg , inst_no ,  t)):
+			free = nnu_register(reg ,inst_no, t)
+			
+			reg[free] = I[3]
+			table[I[3]][1] = free
+		
+			print 'LOAD R' , free , ' , ' , I[3]
+			second_op = free
+		else:
+			free = next_use_register(reg , inst_no , t)
+			print 'STORE ' , reg[free] , ' R ' , free
+			table[reg[free]][1] = None
+			reg[free] = I[3]
+			table[I[3]][1] = free
+			second_op = free
+				
+
+	
+	if(I[0] == I[1]):
+
+		free = table[I[1]][1]
+		table[I[1]][1] = None
+		reg[free] = I[0]
+		table[I[0]][1] = free
+
+		print get_operation(quad) ,' R ',free ,' R ', free , ' R ' , second_op
+		
+	elif(I[0] == I[3]):
+		free = table[I[3]][1]
+		table[I[3]][1] = None
+		reg[free] = I[0]
+		table[I[0]][1] = free
+
+		print get_operation(quad) , ' R ' , first_op , ' R ' , free , ' R ' , free
+
+	
+		
+		
+			
+
+def get(quad , t):
+
 	try:
-		r = int(raw_input("Enter the numeber of registers (minimum 3)"))
-		if r<3:
+		r = int(raw_input('enter the no of registers , minimum - 3\n'))
+		if r < 3:
 			raise
 	except:
-		print '\nInvalid Input.. Exiting\n'
+		#prigennt ' \nInvalid Input.... Exiting..'
+		print '\nInvalid Input.... Exiting..'		
 		sys.exit()
+
+	reg = []
+	for i in range(0 , r):
+		reg.append(None)
+
+
+	f_original = open('symbol_original.txt' , 'r')
+	f_temp = open('symbol_temp.txt' , 'r')
+
+	lines_original = f_original.readlines()
+	lines_temp     = f_temp.readlines()
+
+	original_variables = []
+	for i in lines_original:
+		i = i.split('\n')
+		original_variables.append(i[0])
+
+
+	temp_variables = []
+	for i in lines_temp:
+		i = i.split('\n')
+		temp_variables.append(i[0])
+
+	table = dict({})
+
+	for i in original_variables:
+		table[i] = [i , None]
+
+
 	
-	print '\n'
-	regs = []
-	i=0
-	while (i<r):
-		regs.append ( "R"+str(i) )
-       		i = i + 1
+	for i in temp_variables:
+		table[i] = [None , None]
 
+	print
+	print	
+	print reg
+	print
+	print table
+'''
+	k = 0
+	for i in quad:
 
-	#getActualVars()
-	#getTempVars()
-	#as of now, this is hardcoded
-	var = {}
-	var['a']='act'
-	var['b']='act'
-	var['c']='act'
-	var['d']='act'
-	var['t']='temp'
-	var['u']='temp'
-	var['v']='temp'
-
-	var_list = []
-	for i in var:
-		var_list.append(i)
-
-	#Register and Address Descripters
-	des = [regs, var_list]
-	
-	init_table(des, regs, var)
-	#display_table(des)
-	update(des)
-	print '\n\n'
-	print des
-	print '\n\n'
-	display_table(des)
+		if(len(quad[k]) > 2):
+			getReg_and_update1(i , quad.index(i) , reg , table , t)
+			
+		else:
+			pass
+			#getReg_and_update2(i , quad.index(i) , reg , table ,t)
+		k = k + 1
+'''

@@ -10,7 +10,7 @@ def isOperand(who):
     return 0
 
 def isOperator(who):
-    if(who == "+" or who == "-" or who == "*" or who == "/" or who == "^" or who == "="):
+    if(who == "+" or who == "-" or who == "*" or who == "/" ):
         return 1
     return 0
 
@@ -34,7 +34,7 @@ def prcd(who):
     if(who == ")"):
 	return(1)
 
-def ip(infixStr,postfixStr = [],retType = 0):
+def InfixToPostfix(infixStr,postfixStr = []):
     postfixStr = []
     stackArr = []
     postfixPtr = 0
@@ -43,51 +43,32 @@ def ip(infixStr,postfixStr = [],retType = 0):
     infixStr = strToTokens(tempStr)
     for x in infixStr:
 	if(isOperand(x)):
-            postfixStr.append(x+" ")
-            postfixPtr = postfixPtr+1
-# temp var mul *+
+            postfixStr.append(x+' ')
         if(isOperator(x)):
-            if(x != "^"):
-                while((not(isEmpty(stackArr))) and (prcd(x) <= prcd(topStack(stackArr)))):
+        	while((not(isEmpty(stackArr))) and (prcd(x) <= prcd(topStack(stackArr)))):
                     postfixStr.append(topStack(stackArr))
                     pop_stack(stackArr)
-                    postfixPtr = postfixPtr+1
-            else:
-                while((not(isEmpty(stackArr))) and (prcd(x) < prcd(topStack(stackArr)))):
-                    postfixStr.append(topStack(stackArr))
-                    pop_stack(stackArr)
-                    postfixPtr = postfixPtr+1
-            push_stack(stackArr,x)
-        if(x == "("):
+       		push_stack(stackArr,x)
+
+        elif(x == "("):
                 push_stack(stackArr,x)                
-        if(x == ")"):
+        elif(x == ")"):
             while(topStack(stackArr) != "("):
                 postfixStr.append(pop_stack(stackArr))
-                postfixPtr = postfixPtr+1
             pop_stack(stackArr)
             
     while(not(isEmpty(stackArr))):
         if(topStack(stackArr) == "("):
-            pop_stack(stackArr)
+            pop_stack(stackArr)#may be raise exception
         else:
             postfixStr.append(pop_stack(stackArr))
 
-    returnVal = ''
-    for x in postfixStr:
-        returnVal += x
-    
-        
-
-    if(retType == 0):
-        return(returnVal)
-    else:
-	return(postfixStr)
+    return(postfixStr)
 
 
-
-def strToTokens(str):
+def strToTokens(infix):
     strArr = []
-    strArr = str
+    strArr = infix
     tempStr = ''	
     tokens = []
     tokens_index = 0
@@ -110,25 +91,22 @@ def strToTokens(str):
 
 
 
-def menu(what):
-	#what = raw_input('\nEnter Infix String: ')
-        list=[]
-        list=ip(what)
-	count=0
-	l = []
-	k = ""
-	flag = 1
-	for j in list:
-		if ( isOperator(j) and flag == 1):
-			j = " "+j+" "
-			flag = 0
-		else:
-			k=k+j
-
-		if flag==0:
-			l.append(k)
-			l.append(j)
-			flag = 1
-	return list        
+def conversion(infixExpr):
+        postfixExpr=InfixToPostfix(infixExpr)
+	print postfixExpr
+	
+	l=[]
+    	for x in postfixExpr:
+        	if(isOperand(x)):
+        		l.append(x)
+    	f = open("symbol_original.txt", "w")
+    	for i in l:
+       		newline = i.rstrip('\r\n')
+        	f.write(newline)
+        	f.write('\n')
+	f.close()
+	return postfixExpr			
+          
+        
 
 #menu()
