@@ -216,7 +216,7 @@ def getReg_and_update1(I , inst_no , reg , table , t):
 def get(quad , t):
 
 	try:
-		r = int(raw_input('enter the no of registers , minimum - 3\n'))
+		r = int(raw_input('enter the no of registers\n'))
 		if r < 3:
 			raise
 	except:

@@ -25,11 +25,11 @@ def eval(expression, k):
                 if(InfixTopostfix.isOperand(x)):
                         l.append(x)
 
-        f = open("symbol_original.txt", "w")
+        f = open("symbol_original.txt", "a")
         for i in l:
-                newline = i
-                f.write(newline)
-                f.write('\n')
+		if not i.isdigit():
+                	f.write(i)
+                	f.write('\n')
         f.close()
 
 	store_i = k
@@ -52,8 +52,8 @@ def eval(expression, k):
 		else:
 			varstack.append(i)
 
-	f = open("symbol_temp.txt", "w")
-	for i in temp_list:
+	f = open("symbol_temp.txt", "a")
+        for i in temp_list:
      		f.write(i)
         	f.write('\n')
     	f.close()

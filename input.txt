@@ -1,2 +1,2 @@
-ab=cd+ef*gh
-ij=kl*mn-ab
+ab=3+ef*gh
+ij=kl*5-ab

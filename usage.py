@@ -47,9 +47,10 @@ def gen(quad):
 		while (j<len(quad[i])):
 			if ( j!=2 ):
 				#print quad[i][j]
-				lu = computeLastUse(quad, i, j)
-				nu = computeNextUse(quad, i, j)
-				t[i].append([quad[i][j],lu, nu])
+				if not str(quad[i][j]).isdigit():
+					lu = computeLastUse(quad, i, j)
+					nu = computeNextUse(quad, i, j)
+					t[i].append([quad[i][j],lu, nu])
 			j = j+1
 		i = i-1
 	

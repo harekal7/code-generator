@@ -8,7 +8,10 @@ import table
 
 
 if __name__ == "__main__":
-	
+	f = open("symbol_temp.txt", "w")
+	f.close()
+        f = open("symbol_original.txt", "w")	
+	f.close()
 	f = open('input.txt', 'r')
 	read = f.readlines()
 	k = 0
@@ -58,4 +61,4 @@ if __name__ == "__main__":
 		print
 	print
 	table.get(quad , t)
-	os.system("rm symbol_temp.txt")
+	#os.system("rm symbol_temp.txt")
